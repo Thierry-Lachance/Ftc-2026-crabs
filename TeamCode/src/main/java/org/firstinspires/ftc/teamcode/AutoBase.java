@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,21 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import java.util.Locale;
 
 @Autonomous(name = "AutoBase", group = "Autonomous")
-//@Disabled
-enum StateMachine {
-    WAITING_FOR_START,
-    AT_TARGET,
-    DRIVE_TO_TARGET_1,
-    DRIVE_TO_TARGET_2,
-    DRIVE_TO_TARGET_3,
-    DRIVE_TO_TARGET_4,
-    DRIVE_TO_TARGET_5,
-    DRIVE_TO_TARGET_6,
-    DRIVE_TO_TARGET_7,
-    DRIVE_TO_TARGET_8,
-    DRIVE_TO_TARGET_9,
-    DRIVE_TO_TARGET_10
-}
+@Disabled
+
 
 public class AutoBase extends LinearOpMode {
 
@@ -42,6 +30,20 @@ public class AutoBase extends LinearOpMode {
     static final Pose2D TARGET_9 = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0);
     static final Pose2D TARGET_10 = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0);
 
+    enum StateMachine {
+        WAITING_FOR_START,
+        AT_TARGET,
+        DRIVE_TO_TARGET_1,
+        DRIVE_TO_TARGET_2,
+        DRIVE_TO_TARGET_3,
+        DRIVE_TO_TARGET_4,
+        DRIVE_TO_TARGET_5,
+        DRIVE_TO_TARGET_6,
+        DRIVE_TO_TARGET_7,
+        DRIVE_TO_TARGET_8,
+        DRIVE_TO_TARGET_9,
+        DRIVE_TO_TARGET_10
+    }
 
     DcMotor leftFrontDrive;
     DcMotor rightFrontDrive;
@@ -53,10 +55,10 @@ public class AutoBase extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        leftFrontDrive = hardwareMap.dcMotor.get("fl");
-        leftBackDrive = hardwareMap.dcMotor.get("bl");
-        rightFrontDrive = hardwareMap.dcMotor.get("fr");
-        rightBackDrive = hardwareMap.dcMotor.get("br");
+        leftFrontDrive = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
+        leftBackDrive = hardwareMap.dcMotor.get(Constant.backLeftMotorName);
+        rightFrontDrive = hardwareMap.dcMotor.get(Constant.frontRightMotorName);
+        rightBackDrive = hardwareMap.dcMotor.get(Constant.backRightMotorName);
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,7 +69,7 @@ public class AutoBase extends LinearOpMode {
         rightBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
-        odo.setOffsets(0, 0);
+        odo.setOffsets(Constant.xOffset, Constant.yOffset);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
 

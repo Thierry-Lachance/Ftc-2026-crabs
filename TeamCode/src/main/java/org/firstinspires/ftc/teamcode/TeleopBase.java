@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
+@Disabled
 @TeleOp
 public class TeleopBase extends LinearOpMode {
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
@@ -32,7 +31,7 @@ public class TeleopBase extends LinearOpMode {
     }
 
     static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 7, 0, AngleUnit.DEGREES, 0);
+    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
 
 
 
@@ -41,10 +40,10 @@ public class TeleopBase extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        frontLeftMotor = hardwareMap.dcMotor.get("fl");
-        backLeftMotor = hardwareMap.dcMotor.get("bl");
-        frontRightMotor = hardwareMap.dcMotor.get("fr");
-        backRightMotor = hardwareMap.dcMotor.get("br");
+        frontLeftMotor = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
+        backLeftMotor = hardwareMap.dcMotor.get(Constant.backLeftMotorName);
+        frontRightMotor = hardwareMap.dcMotor.get(Constant.frontRightMotorName);
+        backRightMotor = hardwareMap.dcMotor.get(Constant.backRightMotorName);
 
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -57,7 +56,7 @@ public class TeleopBase extends LinearOpMode {
         imu.initialize(parameters);
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
-        odo.setOffsets(80.0, -55); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(Constant.xOffset, Constant.yOffset);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odo.resetPosAndIMU();
