@@ -3,6 +3,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Constant {
+    enum Color {
+        GREEN,
+        PURPLE,
+        NONE
+    }
+    enum ColorPattern {
+        GPP,
+        PGP,
+        PPG,
+        UNKNOWN
+    }
+
     //odo offsets
     public static double xOffset = 0;
     public static double yOffset = 0;
@@ -12,6 +24,9 @@ public class Constant {
     public static String backLeftMotorName = "bl";
     public static String frontRightMotorName = "fr";
     public static String backRightMotorName = "br";
+
+    public static String shooterMotorName = "s1";
+    public static String intakeMotorName = "i1";
 
     //Servo Name
     public static String gateServoName = "g1";
