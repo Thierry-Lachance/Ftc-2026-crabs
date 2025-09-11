@@ -42,9 +42,8 @@ public class TeleopRed extends LinearOpMode {
     }
 
 
-
-    Constant.Color[] colorArray = new  Constant.Color[9];
     int ballCount = 0;
+    Constant.ColorPattern shootingOrder = Constant.ColorPattern.UNKNOWN;
 
     static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
     static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
@@ -114,10 +113,10 @@ public class TeleopRed extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x * 0.7;
 
-            double up = (double) (gamepad1.dpad_up ? 1 : 0) /2;
-            double down = (double) (gamepad1.dpad_down ? 1 : 0) /2;
-            double left = (double) (gamepad1.dpad_left ? 1 : 0) /2;
-            double right = (double) (gamepad1.dpad_right ? 1 : 0) /2;
+            double up = (double) (gamepad1.dpad_up ? 1 : 0) / 2;
+            double down = (double) (gamepad1.dpad_down ? 1 : 0) / 2;
+            double left = (double) (gamepad1.dpad_left ? 1 : 0) / 2;
+            double right = (double) (gamepad1.dpad_right ? 1 : 0) / 2;
 
             if (gamepad1.options) {
                 imu.resetYaw();
@@ -147,61 +146,134 @@ public class TeleopRed extends LinearOpMode {
                 backLeftMotor.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_BACK));
                 backRightMotor.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
             }
-        //***********************DRIVING LOGIC************************//
+            //***********************DRIVING LOGIC************************//
 
             if (gamepad1.right_bumper || gamepad1.left_bumper) {
                 odo.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
             }
             if (gamepad1.b) {
-                    stateMachine = StateMachine.DRIVE_TO_TARGET_B;
-                    nav.driveTo(odo.getPosition(), TARGET_B, 0.5, 0);
+                stateMachine = StateMachine.DRIVE_TO_TARGET_B;
+                nav.driveTo(odo.getPosition(), TARGET_B, 0.5, 0);
 
-            }
-            else if(gamepad1.a){
+            } else if (gamepad1.a) {
                 stateMachine = StateMachine.DRIVE_TO_TARGET_A;
                 nav.driveTo(odo.getPosition(), TARGET_A, 0.5, 0);
-            }
-
-            else {
+            } else {
                 stateMachine = StateMachine.WAITING_FOR_TARGET;
             }
             //***********************COLOR TRACKING LOGIC************************//
-            if(gamepad2.right_bumper){
-                resetColorArray();
+            if (gamepad2.right_bumper) {
+                resetBallCount();
             }
-            if(gamepad2.left_bumper){
-               removeLastColor();
+            if (gamepad2.x) {
+                incrementBallCount();
             }
-            if(gamepad2.x){
-                addPurple();
+            if (gamepad2.a) {
+                decrementBallCount();
             }
-            if(gamepad2.a) {
-                addGreen();
+            //***********************SHOOTING LOGIC************************//
+            if (gamepad1.y) {
+                calculateShootingOrder();
+                shooterMotor.setPower(1.0);// full power
+                //adjust angle
+                //adjust position
+                //shoot first ball
+                //adjust pos etc
+            } else {
+                shooterMotor.setPower(0);
             }
-
-
+            //************************INTAKE LOGIC***********************//
+            if(gamepad1.right_trigger > 0.1){
+                intakeMotor.setPower(1.0);
+                gateServo.setPosition(Constant.gateServoActivePos);
+            }
+            else{
+                intakeMotor.setPower(0);
+                gateServo.setPosition(Constant.gateServoBasePos);
+            }
         }
     }
-    void resetColorArray(){
-        colorArray = new Constant.Color[9];
+
+    void resetBallCount() {
         ballCount = 0;
     }
-    void addGreen(){
-        colorArray[ballCount] = Constant.Color.GREEN;
+
+    void incrementBallCount() {
         ballCount++;
     }
-    void addPurple(){
-        colorArray[ballCount] = Constant.Color.PURPLE;
-        ballCount++;
-    }
-    void removeLastColor(){
-        colorArray[ballCount-1] = Constant.Color.NONE;
+
+    void decrementBallCount() {
+        if (ballCount > 0) {
+            ballCount--;
+        }
     }
 
-    void calculateShootingOrder(){
-    int numberOfGreens = 0;
-    int numberOfPurples = 0;
+    int findColorGreenInChamber() {
+        return 0;
+    }
+    int findColorPurpleInChamber() {
+        return 0;
+    }
+
+    void calculateShootingOrder() {
+        int patternStart = ballCount % 3; // 0,1,2
+        switch (Constant.gameElementPattern) {
+            case GPP:
+                switch (patternStart) {
+                    case 0:
+                        //shoot gpp
+                        shootingOrder = Constant.ColorPattern.GPP;
+                        break;
+                    case 1:
+                        //shoot ppg
+                        shootingOrder = Constant.ColorPattern.PPG;
+                        break;
+                    case 2:
+                        //shoot pgp
+                        shootingOrder = Constant.ColorPattern.PGP;
+                        break;
+                }
+                break;
+            case PGP:
+                switch (patternStart) {
+                    case 0:
+                        //shoot pgp
+                        shootingOrder = Constant.ColorPattern.PGP;
+                        break;
+                    case 1:
+                        //shoot gpp
+                        shootingOrder = Constant.ColorPattern.GPP;
+                        break;
+                    case 2:
+                        //shoot ppg
+                        shootingOrder = Constant.ColorPattern.PPG;
+                        break;
+                }
+
+                break;
+            case PPG:
+                switch (patternStart) {
+                    case 0:
+                        //shoot ppg
+                        shootingOrder = Constant.ColorPattern.PPG;
+                        break;
+                    case 1:
+                        //shoot pgp
+                        shootingOrder = Constant.ColorPattern.PGP;
+                        break;
+                    case 2:
+                        //shoot gpp
+                        shootingOrder = Constant.ColorPattern.GPP;
+                        break;
+                }
+
+                break;
+            case UNKNOWN:
+                shootingOrder = Constant.ColorPattern.UNKNOWN;
+
+                break;
+        }
 
 
     }
-   }   // end class
+}   // end class

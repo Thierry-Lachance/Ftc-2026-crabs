@@ -3,17 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Constant {
-    enum Color {
-        GREEN,
-        PURPLE,
-        NONE
-    }
-    enum ColorPattern {
+
+    public enum ColorPattern {
         GPP,
         PGP,
         PPG,
         UNKNOWN
     }
+    public static ColorPattern gameElementPattern = ColorPattern.UNKNOWN;
 
     //odo offsets
     public static double xOffset = 0;
@@ -41,4 +38,10 @@ public class Constant {
     public static double chamber1BasePos = 0.0;
     public static double chamber2BasePos = 0.0;
     public static double chamber3BasePos = 0.0;
+    //Servo Active Position
+    public static double gateServoActivePos = 0.0;
+    public static double angleServoActivePos = 0.0;
+    public static double chamber1ActivePos = 0.0;
+    public static double chamber2ActivePos = 0.0;
+    public static double chamber3ActivePos = 0.0;
 }
