@@ -15,7 +15,7 @@ public class Zero extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        gateServo = hardwareMap.get(Servo.class, Constant.gateServoName);
+
         angleServo = hardwareMap.get(Servo.class, Constant.angleServoName);
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
         chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
@@ -27,7 +27,7 @@ public class Zero extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-        gateServo.setPosition(Constant.gateServoBasePos);
+
         angleServo.setPosition(Constant.angleServoBasePos);
         chamber1Servo.setPosition(Constant.chamber1BasePos);
         chamber2Servo.setPosition(Constant.chamber2BasePos);

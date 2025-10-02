@@ -28,7 +28,7 @@ public class TeleopRed extends LinearOpMode {
     DcMotor shooterMotor;
     DcMotor intakeMotor;
 
-    Servo gateServo;
+
     Servo angleServo;
     Servo chamber1Servo;
     Servo chamber2Servo;
@@ -60,7 +60,7 @@ public class TeleopRed extends LinearOpMode {
         shooterMotor = hardwareMap.dcMotor.get(Constant.shooterMotorName);
         intakeMotor = hardwareMap.dcMotor.get(Constant.intakeMotorName);
 
-        gateServo = hardwareMap.get(Servo.class, Constant.gateServoName);
+        
         angleServo = hardwareMap.get(Servo.class, Constant.angleServoName);
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
         chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
@@ -182,11 +182,11 @@ public class TeleopRed extends LinearOpMode {
             //************************INTAKE LOGIC***********************//
             if(gamepad1.right_trigger > 0.1){
                 intakeMotor.setPower(1.0);
-                gateServo.setPosition(Constant.gateServoActivePos);
+
             }
             else{
                 intakeMotor.setPower(0);
-                gateServo.setPosition(Constant.gateServoBasePos);
+
             }
         }
     }
