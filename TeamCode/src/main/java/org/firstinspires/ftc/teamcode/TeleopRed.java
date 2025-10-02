@@ -175,10 +175,7 @@ public class TeleopRed extends LinearOpMode {
             if (gamepad1.y) {
                 calculateShootingOrder();
                 shooterMotor.setPower(1.0);// full power
-                //adjust angle
-                //adjust position
-                //shoot first ball
-                //adjust pos etc
+
             } else {
                 shooterMotor.setPower(0);
             }
