@@ -13,7 +13,7 @@ public class Constant {
     public static ColorPattern gameElementPattern = ColorPattern.UNKNOWN;
 
     //odo offsets
-    public static double xOffset = 0;
+    public static double xOffset = 190;
     public static double yOffset = 0;
 
    //Motor Name
@@ -35,13 +35,13 @@ public class Constant {
     //Servo Base Position
 
     public static double angleServoBasePos = 0.0;
-    public static double chamber1BasePos = 0.0;
-    public static double chamber2BasePos = 0.0;
+    public static double chamber1BasePos = 0.03;
+    public static double chamber2BasePos = 0.08;
     public static double chamber3BasePos = 0.0;
     //Servo Active Position
 
     public static double angleServoActivePos = 1.0;
-    public static double chamber1ActivePos = 1.0;
-    public static double chamber2ActivePos = 1.0;
-    public static double chamber3ActivePos = 1.0;
+    public static double chamber1ActivePos = 0.5;
+    public static double chamber2ActivePos = 0.5;
+    public static double chamber3ActivePos = 0.5;
 }
