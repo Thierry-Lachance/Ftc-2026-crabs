@@ -1,19 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 @TeleOp
-public class Mecanum extends LinearOpMode {
+public class Base extends LinearOpMode {
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
     Servo chamber1Servo, chamber2Servo, chamber3Servo;
     DcMotorEx shooter;
@@ -30,6 +31,7 @@ public class Mecanum extends LinearOpMode {
     static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
     static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
 
+    boolean shooting = false;
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
@@ -96,7 +98,7 @@ public class Mecanum extends LinearOpMode {
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
+            
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
@@ -138,32 +140,46 @@ public class Mecanum extends LinearOpMode {
             else {
                 stateMachine = StateMachine.WAITING_FOR_TARGET;
             }
+            if(gamepad1.x){
+                shooting = true;
+            }
+            else if(gamepad1.y) {
+                shooting = false;
+            }
+            if(shooting){
+                shooter.setVelocity(2650);//max velocity = 2800 at 12V according to motor spec
+                if(shooter.getVelocity() > 2600){
+                    chamber1Servo.setPosition(Constant.chamber1ActivePos);
+                    chamber2Servo.setPosition(Constant.chamber2ActivePos);
+                    chamber3Servo.setPosition(Constant.chamber3ActivePos);
+                }
+                else{
+                    chamber1Servo.setPosition(Constant.chamber1BasePos);
+                    chamber2Servo.setPosition(Constant.chamber2BasePos);
+                    chamber3Servo.setPosition(Constant.chamber3BasePos);
+                }
+            }
+            else{
+                shooter.setVelocity(0);//max velocity = 2800 at 12V according to motor spec
+            }
 
             intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-            if(gamepad1.y){
-                shooter.setPower(0.0);
+            if(!shooting){
+                if(gamepad1.right_trigger > 0 || gamepad1.left_trigger > 0){
+                    chamber1Servo.setPosition(Constant.chamber1BasePos);
+                    chamber2Servo.setPosition(Constant.chamber2BasePos);
+                    chamber3Servo.setPosition(Constant.chamber3BasePos);
+                }
+                else {
+                    chamber1Servo.setPosition(Constant.chamber1EngagedPos);
+                    chamber2Servo.setPosition(Constant.chamber2EngagedPos);
+                    chamber3Servo.setPosition(Constant.chamber3EngagedPos);
+                }
             }
-            else if(gamepad1.x) {
-                shooter.setPower(-1.0);
-            }
-            if(gamepad1.dpad_up){
-                chamber1Servo.setPosition(Constant.chamber1ActivePos);
-            }
-            else{
-                chamber1Servo.setPosition(Constant.chamber1BasePos);
-            }
-            if(gamepad1.dpad_right){
-                chamber2Servo.setPosition(Constant.chamber2ActivePos);
-            }
-            else{
-                chamber2Servo.setPosition(Constant.chamber2BasePos);
-            }
-            if(gamepad1.dpad_down) {
-                chamber3Servo.setPosition(Constant.chamber3ActivePos);
-            }
-            else{
-                chamber3Servo.setPosition(Constant.chamber3BasePos);
-            }
+
+
+
+
         }
     }
 }
