@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -15,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 @TeleOp
 public class Base extends LinearOpMode {
+    private ElapsedTime runtime = new ElapsedTime();
+
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
     Servo chamber1Servo, chamber2Servo, chamber3Servo;
     DcMotorEx shooter;
@@ -32,6 +35,10 @@ public class Base extends LinearOpMode {
     static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
 
     boolean shooting = false;
+    int numberOfBallsShot = 0;
+    int[] shootingSequence = {1, 2, 3};
+    ElapsedTime timeSinceShot = runtime;
+
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
@@ -145,26 +152,51 @@ public class Base extends LinearOpMode {
             }
             else if(gamepad1.y) {
                 shooting = false;
+                chamber1Servo.setPosition(Constant.chamber1EngagedPos);
+                chamber2Servo.setPosition(Constant.chamber2EngagedPos);
+                chamber3Servo.setPosition(Constant.chamber3EngagedPos);
             }
+            telemetry.addData("speed", shooter.getVelocity());
             if(shooting){
-                shooter.setVelocity(2650);//max velocity = 2800 at 12V according to motor spec
-                if(shooter.getVelocity() > 2600){
-                    chamber1Servo.setPosition(Constant.chamber1ActivePos);
-                    chamber2Servo.setPosition(Constant.chamber2ActivePos);
-                    chamber3Servo.setPosition(Constant.chamber3ActivePos);
+                shooter.setVelocity(Constant.shooterPower);//max velocity = 2800 at 12V according to motor spec
+                if(shooter.getVelocity() < Constant.shooterPower+30 && timeSinceShot.seconds() > 1.75){
+                    switch (shootingSequence[numberOfBallsShot]){
+                        case 1:
+                            chamber1Servo.setPosition(Constant.chamber1ActivePos);
+                            timeSinceShot.reset();
+                            break;
+                        case 2:
+                            chamber2Servo.setPosition(Constant.chamber2ActivePos);
+                            timeSinceShot.reset();
+                            break;
+                        case 3:
+                            chamber3Servo.setPosition(Constant.chamber3ActivePos);
+                            timeSinceShot.reset();
+                            break;
+                    }
+
+                    if(numberOfBallsShot+1 >= shootingSequence.length) {
+                        numberOfBallsShot = 0;
+                        if (timeSinceShot.seconds() > 1.75) {
+
+                            shooting = false;
+                            shooter.setVelocity(0);
+                        }
+                    }
+                    else{
+                        numberOfBallsShot++;
+
+                    }
+
                 }
-                else{
-                    chamber1Servo.setPosition(Constant.chamber1BasePos);
-                    chamber2Servo.setPosition(Constant.chamber2BasePos);
-                    chamber3Servo.setPosition(Constant.chamber3BasePos);
-                }
+
             }
             else{
                 shooter.setVelocity(0);//max velocity = 2800 at 12V according to motor spec
             }
 
             intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-            if(!shooting){
+            if(!shooting && timeSinceShot.seconds() > 1.75){
                 if(gamepad1.right_trigger > 0 || gamepad1.left_trigger > 0){
                     chamber1Servo.setPosition(Constant.chamber1BasePos);
                     chamber2Servo.setPosition(Constant.chamber2BasePos);
@@ -178,7 +210,7 @@ public class Base extends LinearOpMode {
             }
 
 
-
+            telemetry.update();
 
         }
     }

@@ -16,6 +16,7 @@ public class Zero extends LinearOpMode {
     Servo chamber1Servo;
     Servo chamber2Servo;
     Servo chamber3Servo;
+    Servo shooterServo;
 
 
     @Override
@@ -25,7 +26,7 @@ public class Zero extends LinearOpMode {
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
       chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
        chamber3Servo = hardwareMap.get(Servo.class, Constant.chamber3Name);
-
+        shooterServo = hardwareMap.get(Servo.class, Constant.angleServoName);
         waitForStart();
         resetRuntime();
 
@@ -36,15 +37,17 @@ public class Zero extends LinearOpMode {
       //  angleServo.setPosition(Constant.angleServoBasePos);
 
        //
-            if(gamepad1.right_stick_button){
+            if(gamepad1.x){
                 chamber1Servo.setPosition(Constant.chamber1ActivePos);
                 chamber2Servo.setPosition(Constant.chamber2ActivePos);
                  chamber3Servo.setPosition(Constant.chamber3ActivePos);
+                 shooterServo.setPosition(Constant.angleServoActivePos);
             }
 else{
     chamber1Servo.setPosition(Constant.chamber1BasePos);
                 chamber2Servo.setPosition(Constant.chamber2BasePos);
                  chamber3Servo.setPosition(Constant.chamber3BasePos);
+                 shooterServo.setPosition(Constant.angleServoBasePos);
 }
 
 

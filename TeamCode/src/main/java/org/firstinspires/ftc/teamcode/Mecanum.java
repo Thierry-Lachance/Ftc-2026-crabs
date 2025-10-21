@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 @TeleOp
 public class Mecanum extends LinearOpMode {
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
-    Servo chamber1Servo, chamber2Servo, chamber3Servo;
+    Servo chamber1Servo, chamber2Servo, chamber3Servo, shooterServo;
     DcMotorEx shooter;
 
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
@@ -29,7 +29,7 @@ public class Mecanum extends LinearOpMode {
 
     static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
     static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-
+    double target = 0.6;
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
@@ -43,6 +43,7 @@ public class Mecanum extends LinearOpMode {
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
         chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
         chamber3Servo = hardwareMap.get(Servo.class, Constant.chamber3Name);
+        shooterServo = hardwareMap.get(Servo.class, Constant.angleServoName);
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -140,11 +141,12 @@ public class Mecanum extends LinearOpMode {
             }
 
             intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            shooterServo.setPosition(target);
             if(gamepad1.y){
-                shooter.setPower(0.0);
+                shooter.setVelocity(0.0);
             }
             else if(gamepad1.x) {
-                shooter.setPower(-1.0);
+                shooter.setVelocity(-1800);
             }
             if(gamepad1.dpad_up){
                 chamber1Servo.setPosition(Constant.chamber1ActivePos);
@@ -164,6 +166,12 @@ public class Mecanum extends LinearOpMode {
             else{
                 chamber3Servo.setPosition(Constant.chamber3BasePos);
             }
+            if(gamepad2.y)target = 0.65;
+            if(gamepad2.b)target = 0.60;
+            if(gamepad2.a) target = 0.55;
+            if(gamepad2.x)target =0.50;//ybax
+            telemetry.addData("rpm", shooter.getVelocity());
+            telemetry.update();
         }
     }
 }
