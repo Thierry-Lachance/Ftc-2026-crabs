@@ -14,12 +14,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import java.util.Locale;
+
 @TeleOp
 public class Base extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
-    Servo chamber1Servo, chamber2Servo, chamber3Servo;
+    Servo chamber1Servo, chamber2Servo, chamber3Servo, angle;
     DcMotorEx shooter;
 
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
@@ -35,10 +37,11 @@ public class Base extends LinearOpMode {
     static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
 
     boolean shooting = false;
+    boolean empty = false;
     int numberOfBallsShot = 0;
     int[] shootingSequence = {1, 2, 3};
     ElapsedTime timeSinceShot = runtime;
-
+    double shooterPower = -1000;
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
@@ -52,6 +55,8 @@ public class Base extends LinearOpMode {
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
         chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
         chamber3Servo = hardwareMap.get(Servo.class, Constant.chamber3Name);
+
+        angle = hardwareMap.get(Servo.class,Constant.angleServoName);
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -83,7 +88,7 @@ public class Base extends LinearOpMode {
         odo.setOffsets(Constant.xOffset, Constant.yOffset);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        odo.resetPosAndIMU();
+        //odo.resetPosAndIMU();
         nav.setDriveType(DriveToPoint.DriveType.MECANUM);
 
         StateMachine stateMachine;
@@ -91,7 +96,7 @@ public class Base extends LinearOpMode {
 
 
         waitForStart();
-
+        angle.setPosition(0.0);
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
@@ -149,6 +154,8 @@ public class Base extends LinearOpMode {
             }
             if(gamepad1.x){
                 shooting = true;
+                empty = false;
+                numberOfBallsShot = 0;
             }
             else if(gamepad1.y) {
                 shooting = false;
@@ -158,36 +165,58 @@ public class Base extends LinearOpMode {
             }
             telemetry.addData("speed", shooter.getVelocity());
             if(shooting){
-                shooter.setVelocity(Constant.shooterPower);//max velocity = 2800 at 12V according to motor spec
-                if(shooter.getVelocity() < Constant.shooterPower+30 && timeSinceShot.seconds() > 1.75){
-                    switch (shootingSequence[numberOfBallsShot]){
+                shooter.setVelocity(shooterPower);//max velocity = 2800 at 12V according to motor spec
+                if(shooter.getVelocity() < shooterPower+20 && timeSinceShot.seconds() > 1.75){
+                    if (empty) {
+                        shooting = false;
+                        shooter.setVelocity(0);
+                    }
+                    else {
+                        switch (shootingSequence[numberOfBallsShot]) {
+                            case 1:
+                                chamber1Servo.setPosition(Constant.chamber1ActivePos);
+                                timeSinceShot.reset();
+                                numberOfBallsShot++;
+
+                                break;
+                            case 2:
+                                chamber2Servo.setPosition(Constant.chamber2ActivePos);
+                                timeSinceShot.reset();
+                                numberOfBallsShot++;
+
+                                break;
+                            case 3:
+                                chamber3Servo.setPosition(Constant.chamber3ActivePos);
+                                timeSinceShot.reset();
+                                empty = true;
+                                numberOfBallsShot = 0;
+                                break;
+                        }
+                    }
+
+
+                }
+                else if(gamepad1.b){
+                    switch (shootingSequence[numberOfBallsShot]) {
                         case 1:
                             chamber1Servo.setPosition(Constant.chamber1ActivePos);
                             timeSinceShot.reset();
+                            numberOfBallsShot++;
+
                             break;
                         case 2:
                             chamber2Servo.setPosition(Constant.chamber2ActivePos);
                             timeSinceShot.reset();
+                            numberOfBallsShot++;
+
                             break;
                         case 3:
                             chamber3Servo.setPosition(Constant.chamber3ActivePos);
                             timeSinceShot.reset();
+                            empty = true;
+                            numberOfBallsShot = 0;
                             break;
                     }
-
-                    if(numberOfBallsShot+1 >= shootingSequence.length) {
-                        numberOfBallsShot = 0;
-                        if (timeSinceShot.seconds() > 1.75) {
-
-                            shooting = false;
-                            shooter.setVelocity(0);
-                        }
-                    }
-                    else{
-                        numberOfBallsShot++;
-
-                    }
-
                 }
 
             }
@@ -196,8 +225,15 @@ public class Base extends LinearOpMode {
             }
 
             intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            if(gamepad2.y)angle.setPosition(0.0);
+            if(gamepad2.b)angle.setPosition(0.2);
+            if(gamepad2.a)angle.setPosition(0.4);
+            if(gamepad2.x)angle.setPosition(0.6);
+            if(gamepad1.dpad_up) shooterPower = Constant.shooterPowerFar;
+            if(gamepad1.dpad_down) shooterPower = Constant.shooterPowerClose;
             if(!shooting && timeSinceShot.seconds() > 1.75){
                 if(gamepad1.right_trigger > 0 || gamepad1.left_trigger > 0){
+                    empty = false;
                     chamber1Servo.setPosition(Constant.chamber1BasePos);
                     chamber2Servo.setPosition(Constant.chamber2BasePos);
                     chamber3Servo.setPosition(Constant.chamber3BasePos);
@@ -209,8 +245,12 @@ public class Base extends LinearOpMode {
                 }
             }
 
-
+            telemetry.addData("current state:", stateMachine);
+            Pose2D pos = odo.getPosition();
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("Position", data);
             telemetry.update();
+
 
         }
     }
