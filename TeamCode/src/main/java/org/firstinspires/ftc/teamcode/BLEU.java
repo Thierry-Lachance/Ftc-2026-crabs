@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,9 +15,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Locale;
-@Disabled
+
 @TeleOp
-public class Base extends LinearOpMode {
+public class BLEU extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
@@ -30,18 +29,17 @@ public class Base extends LinearOpMode {
 
     enum StateMachine {
         WAITING_FOR_TARGET,
-        DRIVE_TO_TARGET_A,
+        DRIVE_TO_TARGET_X,
+        DRIVE_TO_TARGET_Y,
         DRIVE_TO_TARGET_B
     }
 
-    static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 60, -20, AngleUnit.DEGREES, -150);
-    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 88.5, -92 , AngleUnit.DEGREES, -130);
-
+    static final Pose2D TARGET_X = new Pose2D(DistanceUnit.INCH, 60, -20, AngleUnit.DEGREES, -150);
+    static final Pose2D TARGET_Y = new Pose2D(DistanceUnit.INCH, 88.5, -92 , AngleUnit.DEGREES, -130);
+    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 61.8, -71   , AngleUnit.DEGREES, -135);
+    Pose2D CurrentTarget = new Pose2D(DistanceUnit.INCH, 0, 0   , AngleUnit.DEGREES, 0);
     boolean shooting = false;
-    boolean empty = false;
-    int numberOfBallsShot = 0;
-    int[] shootingSequence = {1, 2, 3};
-    ElapsedTime timeSinceShot = runtime;
+
     double shooterPower = -1000;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -128,8 +126,6 @@ public class Base extends LinearOpMode {
                 frontRight.setPower(frontRightPower);
                 backRight.setPower(backRightPower);
             } else {
-                telemetry.addData("Current Pos", odo.getPosition().toString());
-               telemetry.addData("power", nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_FRONT));
                 telemetry.update();
                 frontLeft.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_FRONT));
                 frontRight.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_FRONT));
@@ -139,17 +135,25 @@ public class Base extends LinearOpMode {
             if (gamepad1.right_bumper || gamepad1.left_bumper) {
                 odo.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
             }
-            if (gamepad1.b) {
-                shooterPower = Constant.shooterPowerB;
-                stateMachine = StateMachine.DRIVE_TO_TARGET_B;
-                nav.driveTo(odo.getPosition(), TARGET_B, 0.4, 0);
+            if (gamepad1.y) {
+                shooterPower = Constant.shooterPowerY;
+                stateMachine = BLEU.StateMachine.DRIVE_TO_TARGET_Y;
+                CurrentTarget = TARGET_Y;
+                nav.driveTo(odo.getPosition(), TARGET_Y, 0.4 + 3*(gamepad1.right_trigger/5), 0);
 
             }
-            else if(gamepad1.a){
+            else if(gamepad1.x){
                 shooterPower = Constant.shooterPowerX;
-                stateMachine = StateMachine.DRIVE_TO_TARGET_A;
-                nav.driveTo(odo.getPosition(), TARGET_A, 0.4, 0);
+                stateMachine = BLEU.StateMachine.DRIVE_TO_TARGET_X;
+                CurrentTarget = TARGET_X;
+                nav.driveTo(odo.getPosition(), TARGET_X, 0.4 + 3*(gamepad1.right_trigger/5), 0);
 
+            }
+            else if(gamepad1.b){
+                shooterPower = Constant.shooterPowerB;
+                stateMachine = BLEU.StateMachine.DRIVE_TO_TARGET_B;
+                CurrentTarget = TARGET_B;
+                nav.driveTo(odo.getPosition(), TARGET_B, 0.4 + 3*(gamepad1.right_trigger/5), 0);
             }
 
             else {
@@ -157,8 +161,7 @@ public class Base extends LinearOpMode {
             }
             if(gamepad2.x){
                 shooting = true;
-                empty = false;
-                numberOfBallsShot = 0;
+
             }
             else if(gamepad2.y) {
                 shooting = false;
@@ -166,51 +169,25 @@ public class Base extends LinearOpMode {
                 chamber2Servo.setPosition(Constant.chamber2EngagedPos);
                 chamber3Servo.setPosition(Constant.chamber3EngagedPos);
             }
-            telemetry.addData("speed", shooter.getVelocity());
+
+            intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
             if(shooting){
                 shooter.setVelocity(shooterPower);//max velocity = 2800 at 12V according to motor spec
-                if(shooter.getVelocity() < shooterPower+20 && timeSinceShot.seconds() > 1.75){
-                    if (empty) {
-                        shooting = false;
-                        shooter.setVelocity(0);
-                    }
-                    else {
-                        switch (shootingSequence[numberOfBallsShot]) {
-                            case 1:
-                                chamber1Servo.setPosition(Constant.chamber1ActivePos);
-                                timeSinceShot.reset();
-                                numberOfBallsShot++;
-
-                                break;
-                            case 2:
-                                chamber2Servo.setPosition(Constant.chamber2ActivePos);
-                                timeSinceShot.reset();
-                                numberOfBallsShot++;
-
-                                break;
-                            case 3:
-                                chamber3Servo.setPosition(Constant.chamber3ActivePos);
-                                timeSinceShot.reset();
-                                empty = true;
-                                numberOfBallsShot = 0;
-                                break;
-                        }
-                    }
-
+                if(shooter.getVelocity() < shooterPower+20  &&
+                        Math.abs(odo.getPosX() - CurrentTarget.getX(DistanceUnit.MM)) < 30 &&
+                        Math.abs(odo.getPosY() - CurrentTarget.getY(DistanceUnit.MM)) < 30 &&
+                        Math.abs(odo.getHeading() - CurrentTarget.getHeading(AngleUnit.RADIANS)) < 0.1){
+                    telemetry.addLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
+                   if(gamepad2.dpad_left) chamber1Servo.setPosition(Constant.chamber1ActivePos);
+                   if(gamepad2.dpad_up) chamber2Servo.setPosition(Constant.chamber2ActivePos);
+                   if(gamepad2.dpad_right) chamber2Servo.setPosition(Constant.chamber3ActivePos);
 
                 }
-
-
             }
             else{
                 shooter.setVelocity(0);//max velocity = 2800 at 12V according to motor spec
-            }
-
-            intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-
-            if(!shooting && timeSinceShot.seconds() > 1.75){
                 if(gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0){
-                    empty = false;
+
                     chamber1Servo.setPosition(Constant.chamber1BasePos);
                     chamber2Servo.setPosition(Constant.chamber2BasePos);
                     chamber3Servo.setPosition(Constant.chamber3BasePos);
@@ -222,9 +199,11 @@ public class Base extends LinearOpMode {
                 }
             }
 
+
+            telemetry.addData("speed", shooter.getVelocity());
             telemetry.addData("current state:", stateMachine);
             Pose2D pos = odo.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data);
             telemetry.update();
 

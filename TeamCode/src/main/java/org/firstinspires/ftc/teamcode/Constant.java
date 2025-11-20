@@ -13,7 +13,7 @@ public class Constant {
     public static ColorPattern gameElementPattern = ColorPattern.UNKNOWN;
 
     //odo offsets
-    public static double xOffset = -190;
+    public static double xOffset = -180;
     public static double yOffset = 0;
 
    //Motor Name
@@ -49,6 +49,7 @@ public class Constant {
     public static double chamber2EngagedPos = 0.33;
     public static double chamber3EngagedPos = 0.25;
 
-    public static double shooterPowerClose = -1000.0;
-    public  static  double shooterPowerFar = -1450;
+    public static double shooterPowerY = -1000.0;
+    public  static  double shooterPowerX = -1450;
+    public static double shooterPowerB = -1200.0;
 }

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,9 +15,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Locale;
-@Disabled
+
 @TeleOp
-public class Base extends LinearOpMode {
+public class ROUGE extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
@@ -30,12 +29,14 @@ public class Base extends LinearOpMode {
 
     enum StateMachine {
         WAITING_FOR_TARGET,
-        DRIVE_TO_TARGET_A,
+        DRIVE_TO_TARGET_X,
+        DRIVE_TO_TARGET_Y,
         DRIVE_TO_TARGET_B
     }
 
-    static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 60, -20, AngleUnit.DEGREES, -150);
-    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 88.5, -92 , AngleUnit.DEGREES, -130);
+    static final Pose2D TARGET_X = new Pose2D(DistanceUnit.INCH, 60, 18, AngleUnit.DEGREES, -40);
+    static final Pose2D TARGET_Y = new Pose2D(DistanceUnit.INCH, 92.5, 94 , AngleUnit.DEGREES, -50);
+    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 61.8, 71   , AngleUnit.DEGREES, -55);
 
     boolean shooting = false;
     boolean empty = false;
@@ -139,17 +140,22 @@ public class Base extends LinearOpMode {
             if (gamepad1.right_bumper || gamepad1.left_bumper) {
                 odo.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
             }
-            if (gamepad1.b) {
-                shooterPower = Constant.shooterPowerB;
-                stateMachine = StateMachine.DRIVE_TO_TARGET_B;
-                nav.driveTo(odo.getPosition(), TARGET_B, 0.4, 0);
+            if (gamepad1.y) {
+                shooterPower = Constant.shooterPowerY;
+                stateMachine = StateMachine.DRIVE_TO_TARGET_Y;
+                nav.driveTo(odo.getPosition(), TARGET_Y, 0.34 + 2*(gamepad1.right_trigger/3), 0);
 
             }
-            else if(gamepad1.a){
+            else if(gamepad1.x){
                 shooterPower = Constant.shooterPowerX;
-                stateMachine = StateMachine.DRIVE_TO_TARGET_A;
-                nav.driveTo(odo.getPosition(), TARGET_A, 0.4, 0);
+                stateMachine = StateMachine.DRIVE_TO_TARGET_X;
+                nav.driveTo(odo.getPosition(), TARGET_X, 0.34 + 2*(gamepad1.right_trigger/3), 0);
 
+            }
+            else if(gamepad1.b){
+                shooterPower = Constant.shooterPowerB;
+                stateMachine = StateMachine.DRIVE_TO_TARGET_B;
+                nav.driveTo(odo.getPosition(), TARGET_B, 0.34 + 2*(gamepad1.right_trigger/3), 0);
             }
 
             else {
