@@ -134,7 +134,7 @@ public class BLEU extends LinearOpMode {
                 backRight.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
             }
             if (gamepad1.right_bumper || gamepad1.left_bumper) {
-                odo.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+                odo.setPosition(new Pose2D(DistanceUnit.INCH, 105, -119, AngleUnit.RADIANS, 2.477));
             }
             if (gamepad1.y) {
                 shooter.setVelocityPIDFCoefficients(250, 2, 2, 0.0);
@@ -161,7 +161,7 @@ public class BLEU extends LinearOpMode {
             }
             if (gamepad2.x) {
                 shooting = true;
-                shooter.setVelocity(shooterPower);//max velocity = 2800 at 12V according to motor spec
+
 
             } else if (gamepad2.y) {
                 shooting = false;
@@ -173,6 +173,7 @@ public class BLEU extends LinearOpMode {
 
             intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
             if (shooting) {
+                shooter.setVelocity(shooterPower);//max velocity = 2800 at 12V according to motor spec
                 if (shooter.getVelocity() <= shooterPower + 30 && shooter.getVelocity() >= shooterPower - 30 &&
                         Math.abs(odo.getPosX() - CurrentTarget.getX(DistanceUnit.MM)) < 30 &&
                         Math.abs(odo.getPosY() - CurrentTarget.getY(DistanceUnit.MM)) < 30 &&

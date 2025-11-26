@@ -49,7 +49,7 @@ public class Constant {
     public static double chamber2EngagedPos = 0.33;
     public static double chamber3EngagedPos = 0.25;
 
-    public static double shooterPowerY = -1100.0;
-    public  static  double shooterPowerX = -1650;
-    public static double shooterPowerB = -1300.0;
+    public static double shooterPowerY = -1050.0;
+    public  static  double shooterPowerX = -1500;
+    public static double shooterPowerB = -1200.0;
 }
