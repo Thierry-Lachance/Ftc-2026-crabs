@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,25 +12,25 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Locale;
 
-@Autonomous(name = "AutoRed", group = "Autonomous")
+@Autonomous(name = "AutoBleu", group = "Autonomous")
 
 
 
-public class AutoRed extends LinearOpMode {
+public class AutoBleu extends LinearOpMode {
 
-    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // shooting position 0
-    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -1000, -750, AngleUnit.DEGREES, 0);   // correct angle to pick ball 2
-    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM, -200, -700, AngleUnit.DEGREES, 0);    // pos after picking ball 1
-    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -50, -900, AngleUnit.DEGREES, 0);          // open gate
-    static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // shooting position 2
-    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -1000, -1300, AngleUnit.DEGREES, 0);  // pos before intake ball 2
-    static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.MM, -200, -1300, AngleUnit.DEGREES, 0);   // pos after intake ball 2
-    static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // pos shooting 2
-    static final Pose2D TARGET_9 = new Pose2D(DistanceUnit.MM, -1000, -1850, AngleUnit.DEGREES, 0); // pos before intake 3 todo
-    static final Pose2D TARGET_10 = new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0);  // pos after intake ball 3 todo
-    static final Pose2D TARGET_11 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // pos shooting 3
-    static final Pose2D TARGET_12 = new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0); // offside
-
+    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -500, 300, AngleUnit.DEGREES, -135); // shooting position 0
+    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -660, 685, AngleUnit.DEGREES, 0);   // correct angle to pick ball 2
+    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM, -200, 685, AngleUnit.DEGREES, 0);   // pos after picking ball 1
+    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -200, 900, AngleUnit.DEGREES, 0);   // pre open gate
+    static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.MM, -50, 900, AngleUnit.DEGREES, 0); // open gate
+    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -760, 560, AngleUnit.DEGREES, -135); // shooting position 2
+    static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.MM, -660, 1310, AngleUnit.DEGREES, 0);   // pos before intake ball 2
+    static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -200, 1300, AngleUnit.DEGREES, 0);   // pos after intake ball 2
+    static final Pose2D TARGET_9 = new Pose2D(DistanceUnit.MM, -760, 560, AngleUnit.DEGREES, -135); // pos shooting 2
+    static final Pose2D TARGET_10 = new Pose2D(DistanceUnit.MM, -660, 1900, AngleUnit.DEGREES, 0);  // pos before intake 3 todo
+    static final Pose2D TARGET_11 = new Pose2D(DistanceUnit.MM, -200, 1900, AngleUnit.DEGREES, 0);  // pos after intake ball 3 todo
+    static final Pose2D TARGET_12 = new Pose2D(DistanceUnit.MM, -760, 560, AngleUnit.DEGREES, -135); // pos shooting 3
+    static final Pose2D TARGET_13 = new Pose2D(DistanceUnit.MM, -200, 1850, AngleUnit.DEGREES, 0);  // offside
 
     enum StateMachine {
         WAITING_FOR_START,
@@ -47,7 +46,8 @@ public class AutoRed extends LinearOpMode {
         DRIVE_TO_TARGET_9,
         DRIVE_TO_TARGET_10,
         DRIVE_TO_TARGET_11,
-        DRIVE_TO_TARGET_12
+        DRIVE_TO_TARGET_12,
+        DRIVE_TO_TARGET_13
     }
 
     DcMotor leftFrontDrive;
@@ -196,6 +196,15 @@ public class AutoRed extends LinearOpMode {
                     break;
                 case DRIVE_TO_TARGET_12:
                     if (nav.driveTo(odo.getPosition(), TARGET_12, speed, 1.0)) {// stop the arm
+                        telemetry.addLine("at position #10");
+
+                        stateMachine = StateMachine.DRIVE_TO_TARGET_13;
+
+
+                    }
+                    break;
+                case DRIVE_TO_TARGET_13:
+                    if (nav.driveTo(odo.getPosition(), TARGET_13, speed, 1.0)) {// stop the arm
                         telemetry.addLine("at position #10");
 
                         stateMachine = StateMachine.AT_TARGET;

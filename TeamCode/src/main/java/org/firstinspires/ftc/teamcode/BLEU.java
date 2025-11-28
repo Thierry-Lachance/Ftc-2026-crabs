@@ -177,7 +177,9 @@ public class BLEU extends LinearOpMode {
                 if (shooter.getVelocity() <= shooterPower + 30 && shooter.getVelocity() >= shooterPower - 30 &&
                         Math.abs(odo.getPosX() - CurrentTarget.getX(DistanceUnit.MM)) < 30 &&
                         Math.abs(odo.getPosY() - CurrentTarget.getY(DistanceUnit.MM)) < 30 &&
-                        Math.abs(odo.getPosition().getHeading(AngleUnit.RADIANS) - CurrentTarget.getHeading(AngleUnit.RADIANS)) < 0.1) {
+                        Math.abs(odo.getPosition().getHeading(AngleUnit.RADIANS) - CurrentTarget.getHeading(AngleUnit.RADIANS)) < 0.1 &&
+                        Math.abs(odo.getVelX()) < 75.0 &&
+                        Math.abs(odo.getVelY()) < 75.0) {
                     telemetry.addLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
                     if (gamepad2.dpad_left) {
                         chamber1Servo.setPosition(Constant.chamber1ActivePos);
@@ -186,7 +188,7 @@ public class BLEU extends LinearOpMode {
                         chamber2Servo.setPosition(Constant.chamber2ActivePos);
 
                     } else if (gamepad2.dpad_right) {
-                        chamber2Servo.setPosition(Constant.chamber3ActivePos);
+                        chamber3Servo.setPosition(Constant.chamber3ActivePos);
 
                     }
 
@@ -204,6 +206,18 @@ public class BLEU extends LinearOpMode {
                     chamber3Servo.setPosition(Constant.chamber3EngagedPos);
                 }
             }
+            if(gamepad1.dpadUpWasReleased()){
+            odo.setPosition(new Pose2D(DistanceUnit.INCH, odo.getPosition().getX(DistanceUnit.INCH) - 5*Math.cos(odo.getPosition().getHeading(AngleUnit.RADIANS)), odo.getPosition().getY(DistanceUnit.INCH) - 5*Math.sin(odo.getPosition().getHeading(AngleUnit.RADIANS)), AngleUnit.RADIANS, odo.getPosition().getHeading(AngleUnit.RADIANS)));
+            }
+            if(gamepad1.dpadDownWasReleased()){
+                odo.setPosition(new Pose2D(DistanceUnit.INCH, odo.getPosition().getX(DistanceUnit.INCH) + 5*Math.cos(odo.getPosition().getHeading(AngleUnit.RADIANS)), odo.getPosition().getY(DistanceUnit.INCH) + 5*Math.sin(odo.getPosition().getHeading(AngleUnit.RADIANS)), AngleUnit.RADIANS, odo.getPosition().getHeading(AngleUnit.RADIANS)));
+            }
+            if(gamepad1.dpadLeftWasReleased()){
+                odo.setPosition(new Pose2D(DistanceUnit.INCH, odo.getPosition().getX(DistanceUnit.INCH) - 5*Math.cos(odo.getPosition().getHeading(AngleUnit.RADIANS)+Math.PI/2), odo.getPosition().getY(DistanceUnit.INCH) - 5*Math.sin(odo.getPosition().getHeading(AngleUnit.RADIANS)+Math.PI/2), AngleUnit.RADIANS, odo.getPosition().getHeading(AngleUnit.RADIANS)));
+            }
+            if(gamepad1.dpadRightWasReleased()){
+                odo.setPosition(new Pose2D(DistanceUnit.INCH, odo.getPosition().getX(DistanceUnit.INCH) + 5*Math.cos(odo.getPosition().getHeading(AngleUnit.RADIANS)+Math.PI/2), odo.getPosition().getY(DistanceUnit.INCH) + 5*Math.sin(odo.getPosition().getHeading(AngleUnit.RADIANS)+Math.PI/2), AngleUnit.RADIANS, odo.getPosition().getHeading(AngleUnit.RADIANS)));
+            }
 
 
             telemetry.addData("speed", shooter.getVelocity());
@@ -216,6 +230,10 @@ public class BLEU extends LinearOpMode {
             telemetry.addData("deg", Math.abs(odo.getPosition().getHeading(AngleUnit.RADIANS) - CurrentTarget.getHeading(AngleUnit.RADIANS)));
             telemetry.addData("deg 1", odo.getPosition().getHeading(AngleUnit.RADIANS));
             telemetry.addData("deg 2", CurrentTarget.getHeading(AngleUnit.RADIANS));
+            telemetry.addData("vel X", odo.getVelX());
+            telemetry.addData("vel Y", odo.getVelY());
+            telemetry.addData("vel R", odo.getHeadingVelocity());
+
 
 
             Pose2D pos = odo.getPosition();
