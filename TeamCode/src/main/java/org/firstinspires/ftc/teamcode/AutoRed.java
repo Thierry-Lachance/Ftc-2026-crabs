@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -16,38 +15,35 @@ import java.util.Locale;
 @Autonomous(name = "AutoRed", group = "Autonomous")
 
 
-
 public class AutoRed extends LinearOpMode {
 
-    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // shooting position 0
-    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -1000, -750, AngleUnit.DEGREES, 0);   // correct angle to pick ball 2
-    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM, -200, -700, AngleUnit.DEGREES, 0);    // pos after picking ball 1
-    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -50, -900, AngleUnit.DEGREES, 0);          // open gate
-    static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // shooting position 2
-    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -1000, -1300, AngleUnit.DEGREES, 0);  // pos before intake ball 2
-    static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.MM, -200, -1300, AngleUnit.DEGREES, 0);   // pos after intake ball 2
-    static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // pos shooting 2
-    static final Pose2D TARGET_9 = new Pose2D(DistanceUnit.MM, -1000, -1850, AngleUnit.DEGREES, 0); // pos before intake 3 todo
-    static final Pose2D TARGET_10 = new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0);  // pos after intake ball 3 todo
-    static final Pose2D TARGET_11 = new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45); // pos shooting 3
-    static final Pose2D TARGET_12 = new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0); // offside
+    static final Pose2D[] TARGET = {
+            new Pose2D(DistanceUnit.MM, -1000, -600, AngleUnit.DEGREES, -45), // shooting position
+            new Pose2D(DistanceUnit.MM, -1000, -750, AngleUnit.DEGREES, 0),   // correct angle to pick ball 2
+            new Pose2D(DistanceUnit.MM, -200, -700, AngleUnit.DEGREES, 0), // pos after picking ball 1
+            new Pose2D(DistanceUnit.MM, -50, -900, AngleUnit.DEGREES, 0),         // open gate
+            new Pose2D(DistanceUnit.MM, -1000, -1300, AngleUnit.DEGREES, 0), // pos before intake ball 2
+            new Pose2D(DistanceUnit.MM, -200, -1300, AngleUnit.DEGREES, 0),  // pos after intake ball 2
+            new Pose2D(DistanceUnit.MM, -1000, -1850, AngleUnit.DEGREES, 0),// pos before intake 3
+            new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0), // pos after intake ball 3
+            new Pose2D(DistanceUnit.MM, -200, -1850, AngleUnit.DEGREES, 0)};// offside
 
 
     enum StateMachine {
         WAITING_FOR_START,
         AT_TARGET,
-        DRIVE_TO_TARGET_1,
-        DRIVE_TO_TARGET_2,
-        DRIVE_TO_TARGET_3,
-        DRIVE_TO_TARGET_4,
-        DRIVE_TO_TARGET_5,
-        DRIVE_TO_TARGET_6,
-        DRIVE_TO_TARGET_7,
-        DRIVE_TO_TARGET_8,
-        DRIVE_TO_TARGET_9,
-        DRIVE_TO_TARGET_10,
-        DRIVE_TO_TARGET_11,
-        DRIVE_TO_TARGET_12
+        DRIVE_TO_SHOOT_1,
+        DRIVE_TO_PRE_INTAKE_1,
+        DRIVE_TO_POST_INTAKE_1,
+        DRIVE_TO_POST_GATE_1,
+        DRIVE_TO_SHOOT_2,
+        DRIVE_TO_PRE_INTAKE_2,
+        DRIVE_TO_POST_INTAKE_2,
+        DRIVE_TO_SHOOT_3,
+        DRIVE_TO_PRE_INTAKE_3,
+        DRIVE_TO_POST_INTAKE_3,
+        DRIVE_TO_SHOOT_4,
+        DRIVE_TO_OFFSIDE
     }
 
     DcMotor leftFrontDrive;
@@ -100,102 +96,102 @@ public class AutoRed extends LinearOpMode {
 
             switch (stateMachine) {
                 case WAITING_FOR_START://up the slider
-                    stateMachine = StateMachine.DRIVE_TO_TARGET_1;
+                    stateMachine = StateMachine.DRIVE_TO_SHOOT_1;
                     break;
-                case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, speed, 1.0)) {
+                case DRIVE_TO_SHOOT_1:
+                    if (nav.driveTo(odo.getPosition(), TARGET[0], speed, 1.0)) {
                         telemetry.addLine("at position #1!");
-                       stateMachine = StateMachine.DRIVE_TO_TARGET_2;
+                        stateMachine = StateMachine.DRIVE_TO_PRE_INTAKE_1;
 
                     }
 
 
                     break;
-                case DRIVE_TO_TARGET_2:
-                    if (nav.driveTo(odo.getPosition(), TARGET_2, speed, 1.0)) {//dump in the basket and open arm
+                case DRIVE_TO_PRE_INTAKE_1:
+                    if (nav.driveTo(odo.getPosition(), TARGET[1], speed, 1.0)) {
                         telemetry.addLine("at position #2!");
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_3;
+                        stateMachine = StateMachine.DRIVE_TO_POST_INTAKE_1;
 
                     }
 
                     break;
-                case DRIVE_TO_TARGET_3:
-                    if (nav.driveTo(odo.getPosition(), TARGET_3, speed, 1.0)) {//stop the arm
+                case DRIVE_TO_POST_INTAKE_1:
+                    if (nav.driveTo(odo.getPosition(), TARGET[2], speed, 1.0)) {
                         telemetry.addLine("at position #3");
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_4;
+                        stateMachine = StateMachine.DRIVE_TO_POST_GATE_1;
 
                     }
 
                     break;
 
-                case DRIVE_TO_TARGET_4:
-                    if (nav.driveTo(odo.getPosition(), TARGET_4, speed, 1.0)) {//dump the block in the basket
+                case DRIVE_TO_POST_GATE_1:
+                    if (nav.driveTo(odo.getPosition(), TARGET[3], speed, 1.0)) {
                         telemetry.addLine("at position #4");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_5;
+                        stateMachine = StateMachine.DRIVE_TO_SHOOT_2;
                     }
 
                     break;
-                case DRIVE_TO_TARGET_5:
-                    if (nav.driveTo(odo.getPosition(), TARGET_5, speed, 1.0)) {//stop the arm
+                case DRIVE_TO_SHOOT_2:
+                    if (nav.driveTo(odo.getPosition(), TARGET[0], speed, 1.0)) {
                         telemetry.addLine("at position #5");
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_6;
+                        stateMachine = StateMachine.DRIVE_TO_PRE_INTAKE_2;
                     }
                     break;
 
-                case DRIVE_TO_TARGET_6:
-                    if (nav.driveTo(odo.getPosition(), TARGET_6, speed, 1.0)) {// dump the block in the basket
+                case DRIVE_TO_PRE_INTAKE_2:
+                    if (nav.driveTo(odo.getPosition(), TARGET[4], speed, 1.0)) {
                         telemetry.addLine("at position #6");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_7;
+                        stateMachine = StateMachine.DRIVE_TO_POST_INTAKE_2;
                     }
 
                     break;
-                case DRIVE_TO_TARGET_7:
-                    if (nav.driveTo(odo.getPosition(), TARGET_7, speed, 1.0)) {// stop the arm
+                case DRIVE_TO_POST_INTAKE_2:
+                    if (nav.driveTo(odo.getPosition(), TARGET[5], speed, 1.0)) {// stop the arm
                         telemetry.addLine("at position #7");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_8;
+                        stateMachine = StateMachine.DRIVE_TO_SHOOT_3;
                     }
 
                     break;
 
-                case DRIVE_TO_TARGET_8:
-                    if (nav.driveTo(odo.getPosition(), TARGET_8, speed, 1.0)) {// dump the block in the basket
+                case DRIVE_TO_SHOOT_3:
+                    if (nav.driveTo(odo.getPosition(), TARGET[0], speed, 1.0)) {
                         telemetry.addLine("at position #8");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_9;
+                        stateMachine = StateMachine.DRIVE_TO_PRE_INTAKE_3;
 
                     }
 
                     break;
-                case DRIVE_TO_TARGET_9:
-                    if (nav.driveTo(odo.getPosition(), TARGET_9, speed, 1.0)) {// stop the arm
+                case DRIVE_TO_PRE_INTAKE_3:
+                    if (nav.driveTo(odo.getPosition(), TARGET[6], speed, 1.0)) {
                         telemetry.addLine("at position #9");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_10;
+                        stateMachine = StateMachine.DRIVE_TO_POST_INTAKE_3;
                     }
                     break;
-                case DRIVE_TO_TARGET_10:
-                    if (nav.driveTo(odo.getPosition(), TARGET_10, speed, 1.0)) {// stop the arm
+                case DRIVE_TO_POST_INTAKE_3:
+                    if (nav.driveTo(odo.getPosition(), TARGET[7], speed, 1.0)) {
                         telemetry.addLine("at position #10");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_11;
+                        stateMachine = StateMachine.DRIVE_TO_SHOOT_4;
 
 
                     }
                     break;
-                case DRIVE_TO_TARGET_11:
-                    if (nav.driveTo(odo.getPosition(), TARGET_11, speed, 1.0)) {// stop the arm
+                case DRIVE_TO_SHOOT_4:
+                    if (nav.driveTo(odo.getPosition(), TARGET[0], speed, 1.0)) {// stop the arm
                         telemetry.addLine("at position #10");
 
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_12;
+                        stateMachine = StateMachine.DRIVE_TO_OFFSIDE;
 
 
                     }
                     break;
-                case DRIVE_TO_TARGET_12:
-                    if (nav.driveTo(odo.getPosition(), TARGET_12, speed, 1.0)) {// stop the arm
+                case DRIVE_TO_OFFSIDE:
+                    if (nav.driveTo(odo.getPosition(), TARGET[8], speed, 1.0)) {// stop the arm
                         telemetry.addLine("at position #10");
 
                         stateMachine = StateMachine.AT_TARGET;
@@ -215,7 +211,6 @@ public class AutoRed extends LinearOpMode {
             telemetry.addData("Position", data);
             telemetry.update();
         }
-
 
 
     }

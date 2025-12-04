@@ -16,10 +16,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Locale;
+
 @Disabled
 @TeleOp
 public class Base extends LinearOpMode {
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
 
     DcMotor frontLeft, frontRight, backLeft, backRight, intake;
     Servo chamber1Servo, chamber2Servo, chamber3Servo;
@@ -35,14 +36,14 @@ public class Base extends LinearOpMode {
     }
 
     static final Pose2D TARGET_A = new Pose2D(DistanceUnit.INCH, 60, -20, AngleUnit.DEGREES, -150);
-    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 88.5, -92 , AngleUnit.DEGREES, -130);
-
+    static final Pose2D TARGET_B = new Pose2D(DistanceUnit.INCH, 88.5, -92, AngleUnit.DEGREES, -130);
     boolean shooting = false;
     boolean empty = false;
     int numberOfBallsShot = 0;
     int[] shootingSequence = {1, 2, 3};
     ElapsedTime timeSinceShot = runtime;
     double shooterPower = -1000;
+
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get(Constant.frontLeftMotorName);
@@ -56,7 +57,6 @@ public class Base extends LinearOpMode {
         chamber1Servo = hardwareMap.get(Servo.class, Constant.chamber1Name);
         chamber2Servo = hardwareMap.get(Servo.class, Constant.chamber2Name);
         chamber3Servo = hardwareMap.get(Servo.class, Constant.chamber3Name);
-
 
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -110,7 +110,7 @@ public class Base extends LinearOpMode {
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            
+
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
@@ -129,7 +129,7 @@ public class Base extends LinearOpMode {
                 backRight.setPower(backRightPower);
             } else {
                 telemetry.addData("Current Pos", odo.getPosition().toString());
-               telemetry.addData("power", nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_FRONT));
+                telemetry.addData("power", nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_FRONT));
                 telemetry.update();
                 frontLeft.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_FRONT));
                 frontRight.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_FRONT));
@@ -144,37 +144,32 @@ public class Base extends LinearOpMode {
                 stateMachine = StateMachine.DRIVE_TO_TARGET_B;
                 nav.driveTo(odo.getPosition(), TARGET_B, 0.4, 0);
 
-            }
-            else if(gamepad1.a){
+            } else if (gamepad1.a) {
                 shooterPower = Constant.shooterPowerX;
                 stateMachine = StateMachine.DRIVE_TO_TARGET_A;
                 nav.driveTo(odo.getPosition(), TARGET_A, 0.4, 0);
 
-            }
-
-            else {
+            } else {
                 stateMachine = StateMachine.WAITING_FOR_TARGET;
             }
-            if(gamepad2.x){
+            if (gamepad2.x) {
                 shooting = true;
                 empty = false;
                 numberOfBallsShot = 0;
-            }
-            else if(gamepad2.y) {
+            } else if (gamepad2.y) {
                 shooting = false;
                 chamber1Servo.setPosition(Constant.chamber1EngagedPos);
                 chamber2Servo.setPosition(Constant.chamber2EngagedPos);
                 chamber3Servo.setPosition(Constant.chamber3EngagedPos);
             }
             telemetry.addData("speed", shooter.getVelocity());
-            if(shooting){
+            if (shooting) {
                 shooter.setVelocity(shooterPower);//max velocity = 2800 at 12V according to motor spec
-                if(shooter.getVelocity() < shooterPower+20 && timeSinceShot.seconds() > 1.75){
+                if (shooter.getVelocity() < shooterPower + 20 && timeSinceShot.seconds() > 1.75) {
                     if (empty) {
                         shooting = false;
                         shooter.setVelocity(0);
-                    }
-                    else {
+                    } else {
                         switch (shootingSequence[numberOfBallsShot]) {
                             case 1:
                                 chamber1Servo.setPosition(Constant.chamber1ActivePos);
@@ -201,21 +196,19 @@ public class Base extends LinearOpMode {
                 }
 
 
-            }
-            else{
+            } else {
                 shooter.setVelocity(0);//max velocity = 2800 at 12V according to motor spec
             }
 
             intake.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
 
-            if(!shooting && timeSinceShot.seconds() > 1.75){
-                if(gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0){
+            if (!shooting && timeSinceShot.seconds() > 1.75) {
+                if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) {
                     empty = false;
                     chamber1Servo.setPosition(Constant.chamber1BasePos);
                     chamber2Servo.setPosition(Constant.chamber2BasePos);
                     chamber3Servo.setPosition(Constant.chamber3BasePos);
-                }
-                else {
+                } else {
                     chamber1Servo.setPosition(Constant.chamber1EngagedPos);
                     chamber2Servo.setPosition(Constant.chamber2EngagedPos);
                     chamber3Servo.setPosition(Constant.chamber3EngagedPos);
