@@ -52,4 +52,5 @@ public class Constant {
     public static double shooterPowerY = -1050.0;
     public  static  double shooterPowerX = -1500;
     public static double shooterPowerB = -1200.0;
+    public static double shooterPowerAutoClose = -1000.0;
 }
